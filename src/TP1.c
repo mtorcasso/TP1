@@ -1,0 +1,406 @@
+/* Copyright 2016, Eric Pernia.
+ * All rights reserved.
+ *
+ * This file is part sAPI library for microcontrollers.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+/*
+ * Date: 2016-04-26
+ */
+
+/*==================[inclusions]=============================================*/
+
+//#include "blinky.h"   // <= own header (optional)
+#include "sapi.h"       // <= sAPI header
+
+/*==================[macros and definitions]=================================*/
+#define TP1_1 (1)
+#define TP1_2 (2)
+#define TP1_3 (3)
+#define TP1_4 (4)
+#define TP1_5 (5)
+#define TP1_6 (6)
+#define TEST (TP1_6)
+
+//Definiciones del punto 4 5 y 6
+#define TICKRATE_1MS	(1)				/* 1000 ticks per second */
+#define TICKRATE_10MS	(10)			/* 100 ticks per second */
+#define TICKRATE_100MS	(100)			/* 10 ticks per second */
+#define LED_TOGGLE_100MS	(100)
+#define LED_TOGGLE_500MS	(500)
+#define LED_TOGGLE_1000MS	(1000)
+#define BUTTON_STATUS_10MS	(10)
+#define BUTTON_STATUS_100MS	(50)
+#define BUTTON_STATUS_500MS	(100)
+
+
+/*==================[internal data declaration]==============================*/
+
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
+
+#if (TEST==TP1_1)
+int main(void){
+
+   /* ------------- INICIALIZACIONES ------------- */
+
+   /* Inicializar la placa */
+   boardConfig();
+
+   /* ------------- REPETIR POR SIEMPRE ------------- */
+   while(1) {
+
+      /* Prendo el led azul */
+      gpioWrite( LEDB, ON );
+
+      delay(500);
+
+      /* Apago el led azul */
+      gpioWrite( LEDB, OFF );
+
+      delay(500);
+
+   }
+   return 0 ;
+}
+
+
+
+#elif (TEST==TP1_2)
+int main(void)
+{
+
+   /* ------------- INICIALIZACIONES ------------- */
+
+   /* Inicializar la placa */
+   boardConfig();
+
+   gpioConfig( GPIO0, GPIO_INPUT );
+
+   gpioConfig( GPIO1, GPIO_OUTPUT );
+
+   /* Variable para almacenar el valor de tecla leido */
+   bool_t valor;
+
+   /* ------------- REPETIR POR SIEMPRE ------------- */
+   while(1) {
+
+      valor = !gpioRead( TEC1 );
+      gpioWrite( LEDB, valor );
+
+      valor = !gpioRead( TEC2 );
+      gpioWrite( LED1, valor );
+
+      valor = !gpioRead( TEC3 );
+      gpioWrite( LED2, valor );
+
+      valor = !gpioRead( TEC4 );
+      gpioWrite( LED3, valor );
+
+      valor = !gpioRead( GPIO0 );
+      gpioWrite( GPIO1, valor );
+
+   }
+   return 0 ;
+}
+
+
+
+#elif (TEST==TP1_3)
+/* FUNCION que se ejecuta cada vez que ocurre un Tick. */
+void myTickHook( void *ptr ){
+
+   static bool_t ledState = OFF;
+
+   gpioMap_t led = (gpioMap_t)ptr;
+
+   if( ledState ){
+      ledState = OFF;
+   }
+   else{
+      ledState = ON;
+   }
+   gpioWrite( led, ledState );
+}
+
+
+/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
+int main(void){
+   /* ------------- INICIALIZACIONES ------------- */
+
+   /* Inicializar la placa */
+   boardConfig();
+
+   tickConfig( 50 );
+   tickCallbackSet( myTickHook, (void*)LEDR );
+   delay(1000);
+
+   /* ------------- REPETIR POR SIEMPRE ------------- */
+   while(1) {
+      tickCallbackSet( myTickHook, (void*)LEDG );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LEDB );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LED1 );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LED2 );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LED3 );
+      delay(1000);
+      tickCallbackSet( myTickHook, (void*)LEDR );
+      delay(1000);
+   }
+   return 0 ;
+}
+
+
+
+#elif (TEST==TP1_4)
+#define TICKRATE_MS		(TICKRATE_1MS)	/* ¿? ticks per second */
+#define LED_TOGGLE_MS		(LED_TOGGLE_500MS / TICKRATE_MS)
+
+volatile bool LED_Time_Flag = false;
+
+/* FUNCION que se ejecuta cada vez que ocurre un Tick. */
+void myTickHook( void *ptr ) {
+	LED_Time_Flag = true;
+}
+
+
+/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
+int main(void) {
+
+	/* ------------- INICIALIZACIONES ------------- */
+	uint32_t LED_Toggle_Counter = 0;
+	int led_n = 1;
+
+	/* Inicializar la placa */
+	boardConfig();
+
+	tickConfig( TICKRATE_MS );
+	tickCallbackSet( myTickHook, (void*)NULL );
+
+	/* ------------- REPETIR POR SIEMPRE ------------- */
+	while(1) {
+		__WFI();
+
+		if (LED_Time_Flag == true) {
+			LED_Time_Flag = false;
+
+			if (LED_Toggle_Counter == 0) {
+				LED_Toggle_Counter = LED_TOGGLE_MS;
+
+				switch (led_n){
+				case 1:
+					gpioToggle(LED1);
+					break;
+				case 2:
+					gpioToggle(LED1);
+					break;
+				case 3:
+					gpioToggle(LED2);
+					break;
+				case 4:
+					gpioToggle(LED2);
+					break;
+				case 5:
+					gpioToggle(LED3);
+					break;
+				case 6:
+					gpioToggle(LED3);
+					led_n=0;
+					break;
+				}
+				led_n++;
+			}
+			else
+				LED_Toggle_Counter--;
+		}
+	}
+	return 0 ;
+}
+
+
+
+#elif (TEST==TP1_5)
+
+DEBUG_PRINT_ENABLE;
+
+#define TICKRATE_MS		(TICKRATE_1MS)	/* ¿? ticks per second */
+#define LED_TOGGLE_MS		(LED_TOGGLE_1000MS / TICKRATE_MS)
+
+volatile bool LED_Time_Flag = false;
+
+/* FUNCION que se ejecuta cada vez que ocurre un Tick. */
+void myTickHook( void *ptr ) {
+	LED_Time_Flag = true;
+}
+
+
+/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
+int main(void) {
+
+	/* ------------- INICIALIZACIONES ------------- */
+	uint32_t LED_Toggle_Counter = 0;
+
+	/* Inicializar la placa */
+	boardConfig();
+
+	/* UART for debug messages. */
+	debugPrintConfigUart( UART_USB, 115200 );
+	debugPrintString( "DEBUG c/sAPI\r\n" );
+
+	tickConfig( TICKRATE_MS );
+	tickCallbackSet( myTickHook, (void*)NULL );
+
+	/* ------------- REPETIR POR SIEMPRE ------------- */
+	while(1) {
+		__WFI();
+
+		if (LED_Time_Flag == true) {
+			LED_Time_Flag = false;
+
+			if (LED_Toggle_Counter == 0) {
+				LED_Toggle_Counter = LED_TOGGLE_MS;
+				debugPrintString( "LED Toggle\n" );
+				switch (led_n){
+				case 1:
+					gpioToggle(LED1);
+					break;
+				case 2:
+					gpioToggle(LED1);
+					break;
+				case 3:
+					gpioToggle(LED2);
+					break;
+				case 4:
+					gpioToggle(LED2);
+					break;
+				case 5:
+					gpioToggle(LED3);
+					break;
+				case 6:
+					gpioToggle(LED3);
+					led_n=0;
+					break;
+				}
+				led_n++;
+			}
+			else
+				LED_Toggle_Counter--;
+		}
+	}
+	return 0 ;
+}
+
+
+
+#elif (TEST==TP1_6)
+DEBUG_PRINT_ENABLE;
+
+#define TICKRATE_MS		(TICKRATE_1MS)	/* ¿? ticks per second */
+#define BUTTON_STATUS_MS	(BUTTON_STATUS_500MS / TICKRATE_MS)
+
+volatile bool LED_Time_Flag = false;
+
+volatile bool BUTTON_Status_Flag = false;
+volatile bool BUTTON_Time_Flag = false;
+
+/* FUNCION que se ejecuta cada vez que ocurre un Tick. */
+void myTickHook( void *ptr ) {
+	LED_Time_Flag = true;
+	BUTTON_Time_Flag = true;
+
+    if (!gpioRead( TEC1 ))
+		BUTTON_Status_Flag = true;
+	else
+		BUTTON_Status_Flag = false;
+
+}
+
+
+/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
+int main(void) {
+
+	/* ------------- INICIALIZACIONES ------------- */
+	uint32_t BUTTON_Status_Counter = 0;
+	uint32_t idx = LED3;
+
+/* Inicializar la placa */
+boardConfig();
+
+/* UART for debug messages. */
+debugPrintConfigUart( UART_USB, 115200 );
+debugPrintString( "DEBUG c/sAPI\r\n" );
+
+tickConfig( TICKRATE_MS );
+tickCallbackSet( myTickHook, (void*)NULL );
+
+gpioToggle(LED3);
+
+/* ------------- REPETIR POR SIEMPRE ------------- */
+while(1) {
+	__WFI();
+
+	if (BUTTON_Time_Flag == true) {
+		BUTTON_Time_Flag = false;
+
+		if (BUTTON_Status_Flag == true) {
+			BUTTON_Status_Flag = false;
+
+			if (BUTTON_Status_Counter == 0) {
+				BUTTON_Status_Counter = BUTTON_STATUS_MS;
+
+				gpioToggle(idx);
+
+				((idx > LEDR) ? idx-- : (idx = LED3));
+
+				gpioToggle(idx);
+				debugPrintString( "LED Toggle\n" );
+			}
+			else
+				BUTTON_Status_Counter--;
+		}
+
+	}
+}
+return 0 ;
+}
+#endif
+/*==================[end of file]============================================*/
