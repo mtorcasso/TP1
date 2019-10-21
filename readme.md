@@ -41,70 +41,71 @@ PROJECT = projects/TP1
 
 ## 1.8 Blinky - Parpadeo de LEDS
 Este software tiene la función de parpadear un LED indefinidamente. Hace uso de la función gpioWrite() para llevarlo a cabo.
-![blinky.c](URL de la imagen en github)
+![blinky.c](https://github.com/mtorcasso/TP1/blob/master/img/blinky_c.PNG)
 
 ### gpioWrite()
 Esta función se encarga de setear en un pin un '1' o  un '0'. Para esto hace uso de las funciones gpioOptainPinConfig() y Chip_GPIO_SetPinState().
-![gpioWrite()](URL de la imagen en github)
+![gpioWrite()](https://github.com/mtorcasso/TP1/blob/master/img/gpio_write.PNG)
 
 #### gpioOptainPinConfig()
 Devuelve la configuración del pin que se le pasa como primer parámetro.
-![gpioOptainPinConfig()](URL de la imagen en github)
+![gpioOptainPinConfig()](https://github.com/mtorcasso/TP1/blob/master/img/gpioObtainPinConfig.PNG)
 
 #### Chip_GPIO_SetPinState()
 Función de bajo nivel que finalmente setea el valor que se desea.
-![Chip_GPIO_SetPinState()](URL de la imagen en github)
+![Chip_GPIO_SetPinState()](https://github.com/mtorcasso/TP1/blob/master/img/Chip_GPIO_SetPinState.PNG)
 
 ## 1.9 GitHub
 Falopita
 
 #Compilación condicional
 En la imagen se muestra un ejemplo de como se debe realizar este tipo de compilación.
-![Compilación condicional](URL de la imagen en github)
+![Compilación condicional](https://github.com/mtorcasso/TP1/blob/master/img/compilacion_condicional.PNG)
 
 
 ## 2.0 Switches LEDS
 Se encarga del sensado de 5 pines (4 conectados a pulsadores) y el encendido del LED respectivo a cada uno, o el activado del quinto pin. Hace uso de las funciones gpioConfig(), gpioRead() y gpioWrite().
-![Switches LEDS](URL de la imagen en github)
+![Switches LEDS](https://github.com/mtorcasso/TP1/blob/master/img/switching_leds.PNG)
 
 ### gpioConfig()
 Recibe como parámetros qué pin desea configurar y en qué modo, en base a esto lo setea como input o output, ya sea con pull down o con pull up.
-![gpioConfig()](URL de la imagen en github)
+![gpioConfig()](https://github.com/mtorcasso/TP1/blob/master/img/gpioConfig1.PNG)
+![gpioConfig()](https://github.com/mtorcasso/TP1/blob/master/img/gpioConfig2.PNG)
 
 ### gpioRead()
 Se encarga de ser la interfaz que le pide a la función Chip_GPIO_ReadPortBit() que lea un determinado pin de un puerto. Para eso usa la función nombrada previamente y a gpioObtainPinConfig().
-![gpioRead()](URL de la imagen en github)
+![gpioRead()](https://github.com/mtorcasso/TP1/blob/master/img/gpioRead.PNG)
 
 #### Chip_GPIO_ReadPortBit()
 Lee y devuelve si es verdadero o falso que en un determinado pin haya un '1'.
-![Chip_GPIO_ReadPortBit()](URL de la imagen en github)
+![Chip_GPIO_ReadPortBit()](https://github.com/mtorcasso/TP1/blob/master/img/Chip_GPIO_ReadPortBit.PNG)
 
 ## 3.0 TickHook
 Este bloque se encarga de encender o apagar (según corresponda en su estado anterior) de a uno, todos los LEDS  cada un determinado intervalo de tiempo. Hace uso de la macro tickConfig(), tickCallbackSet() y myTickHook().
-![TickHook](URL de la imagen en github)
+![TickHook](https://github.com/mtorcasso/TP1/blob/master/img/TickHook.PNG)
 
 
 ### tickConfig() - tickInit()
 tickConfig es una macro que permite pasarle un parámetro a tickInit. tickInit setea cada cuando tiempo se activará una interrupción que hará que se encienda el LED que sigue.
-![tickInit()](URL de la imagen en github)
+![tickInit()](https://github.com/mtorcasso/TP1/blob/master/img/tickInit.PNG)
 
 
 ### tickCallbackSet()
 Este es un puntero a función, se le pasa como primer parámetro qué función debe ejecutarse cuando sucede una interrupción y los siguientes son los parámetros que esta requiere.
-![tickCallbackSet()](URL de la imagen en github)
+![tickCallbackSet()](https://github.com/mtorcasso/TP1/blob/master/img/tickCallbackSet.PNG)
 
 ### myTickHook()
 Se fija si el estado del LED es encendido y lo apaga o viceversa cada vez qye se ingresa.
-![myTickHook()](URL de la imagen en github)
+![myTickHook()](https://github.com/mtorcasso/TP1/blob/master/img/myTickHook.PNG)
 
 ## 4.0 TickHook Portable
 Es similar al item anterior con la diferencia de que la función myTickHook en vez de utilizar las estructuras que provee sAPI solo hace uso de una variable global para verificar si un LED esta encendido o no.
-![TickHook portable](URL de la imagen en github)
+![TickHook portable](https://github.com/mtorcasso/TP1/blob/master/img/TickHook%20portable.PNG)
 
 ### myTickHook()
 Setea como encendido cada vez que entra a la interrupción.
-![myTickHook()](URL de la imagen en github)
+![myTickHook()](https://github.com/mtorcasso/TP1/blob/master/img/myTIckHook_portable.PNG)
 
 ### gpioToggle()
 Conmuta el estado de un pin según su estado anterior.
-![gpioToggle()](URL de la imagen en github)
+![gpioToggle()](https://github.com/mtorcasso/TP1/blob/master/img/gpioToggle.PNG)
