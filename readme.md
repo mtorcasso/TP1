@@ -167,7 +167,7 @@ Es la funcion configurada mediante tickCallbackSet() para ejecutarse cuando ocur
 
 ![myTickHook()](https://github.com/mtorcasso/TP1/blob/master/img/myTickHook.PNG)
 
-## 4.0 TickHook Portable
+## TickHook Portable
 Con una serie de definiciones se puede configurar el periodo de interrupción de Tick:
 
     #define TICKRATE_1MS (1)            /* 1000 ticks per second */
@@ -200,6 +200,7 @@ El código es, en esencia, igual al del punto anterior, con el agregado de las f
 
 ### debugPrintConfigUart()
 Es un macro que llama a la función printConfigUart(). La misma apunta el puntero mencionado anteriormente (print_t) a la dirección del UART que se configura para debug, en este caso es el conectado al chip FTDI de la placa de desarrollo. Además llama a la funcion uartConfig() que configura el puerto mencionado con un baudrate determinado.
+
 ![config_uart](https://github.com/mtorcasso/TP1/blob/master/img/config_uart.png)
 
 ### debugPrintString()
@@ -209,8 +210,21 @@ Es un macro que llama a la funcion printString(), que a su vez llama a la funcio
 
 En el main se incorporo este macro cada vez que el LED_Toggle_Counter llega a cero, indicando que hubo una conmutación del estado de un LED, según se observa en la siguiente imagen:
 
-![buclecinco.png](https://github.com/mtorcasso/TP1/blob/master/img/buclecinco.png)
+![buclecinco](https://github.com/mtorcasso/TP1/blob/master/img/buclecinco.png)
 
 En la siguiente imagen se muestran los strings recibidos utilizando el software RealTerm:
 
-![terminal.png](https://github.com/mtorcasso/TP1/blob/master/img/terminal.png)
+![terminal](https://github.com/mtorcasso/TP1/blob/master/img/terminal.png)
+
+## Sensado de push buttons
+
+De manera analoga a lo realizado previamente, se setea en la función myTickHook() un flag asociado al timer del pulsador, y un flag asociado al estado del pulsador. Ambos flag son del tipo volatile para eliminar las optimizaciones del compilador, dado que son variables que se modifican fuera del flujo normal del programa.
+
+![config_pushbutton](https://github.com/mtorcasso/TP1/blob/master/img/config_pushbutton.png)
+
+
+Al comienzo del main, se observa de forma analoga a los puntos anteriores, la inicializacion de la placa mediante boardConfig(), la configuración del tick mediante tickConfig() y tickCallbackSet(), y la configuración del puerto de debug (UART_USB) mediante debugPrintConfigUart().
+
+![main_pushbutton](https://github.com/mtorcasso/TP1/blob/master/img/main_pushbutton.png)
+
+En este caso, se usa el contador BUTTON_Status_Counter para determinar el tiempo que estuvo presionado el pulsador. Una vez que se cumple el tiempo determinado por BUTTON_STATUS_MS se realiza la conmutación de los LED, cuya secuencia esta determinada por la linea `((idx > LEDR) ? idx-- : (idx = LED3));`. Esto cumple de cierta manera la funcion de antirebote, dado que se requiere un determinado tiempo del pulsador presionado para realizar la conmutación. Si se mantiene presionado el pulsador, los LED conmutaran con un periodo asociado a la definición BUTTON_STATUS_MS.
