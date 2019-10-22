@@ -206,6 +206,7 @@ Es un macro que llama a la función printConfigUart(). La misma apunta el punter
 Es un macro que llama a la funcion printString(), que a su vez llama a la funcion uartWriteString(), que a su vez llama a la función uartWriteByte() para escribir caracter a caracter el string pasado por parámetro, en el UART pasado por parámetro. 
 
 ![print_string](https://github.com/mtorcasso/TP1/blob/master/img/print_string.png)
+
 En el main se incorporo este macro cada vez que el LED_Toggle_Counter llega a cero, indicando que hubo una conmutación del estado de un LED, según se observa en la siguiente imagen:
 
 ![buclecinco.png](https://github.com/mtorcasso/TP1/blob/master/img/buclecinco.png)
