@@ -47,7 +47,7 @@ Se hace clic derecho en firmware_v2, se selecciona Debug As -> Debug Configurati
 
 
 ###  Estructura de archivos
-La carpeta gpio_02_blinky tiene dos subcarpetas y un archivo independiente. Este último es el Makefile que será el que conecta los subcarpetas para su compilación. Las subcarpetas se llaman src (que contiene los archivos .c a compilar) e inc (que posee los headers de los archivos en src). 
+La carpeta gpio_02_blinky tiene dos subcarpetas y un archivo independiente. Este último es el Makefile que será el que conecta las subcarpetas para su compilación. Las subcarpetas se llaman src (que contiene los archivos .c a compilar) e inc (que posee los headers de los archivos en src). 
  
  
  
@@ -56,19 +56,19 @@ Luego de debuggear se procede a depurar el código. Para esto hay varios comando
 * Suspend All Debug Sessions: Pausa la depuración
 * Resume All Debug Sessions: Continua la depuración
 * Terminate All Debug Sessions: Finaliza la depuración
-* Step Into: Ingresa a la función que se encuentra en la linea presente
+* Step Into: Ingresa a la función que se encuentra en la línea presente
 * Step Over: Ejecuta la línea (sin ingresar)
 * Step Return: Sale de la función a la que se entró con Step Into
-* Breakpoints: Se define un punto de parada en determinada línea del código, para esto se hace clic derecho sobre dicha línea y se selecciona Toggle Breakpoint, de esta manera se puede analizar los estados de las variables en el momento que se desee.
+* Breakpoints: Se define un punto de parada en determinada línea del código, para esto se hace clic derecho sobre ella y se selecciona Toggle Breakpoint, de esta manera se puede analizar los estados de las variables en el momento que se desee.
 
-En la siguiente imagen se muestra la barra de herramientas de debug, y la opcion de Toggle Breakpoint.
+En la siguiente imagen se muestra la barra de herramientas de debug, y la opción de Toggle Breakpoint.
 
 ![debug_tools](https://github.com/mtorcasso/TP1/blob/master/img/debug_tools.png)
 
 
 
 ### Migración del proyecto
-Se debe copiar la carpeta firmware_v2/sapi_examples/edu-ciaa-nxp/bare_metal/gpio/gpio_02_blinky y pegarla en firmware_v2/projects y renombrarla como TP1. Además, se deben renombrar los archivos `.c` y `.h` con el nombre del proyecto. Luego se debe modificar el archivo project.mk y definir un nuevo proyecto a compilar, según:
+Se debe copiar la carpeta firmware_v2/sapi_examples/edu-ciaa-nxp/bare_metal/gpio/gpio_02_blinky, pegarla en firmware_v2/projects y renombrarla como TP1. Además, se deben renombrar los archivos `.c` y `.h` con el nombre del proyecto. Luego se debe modificar el archivo project.mk y definir un nuevo proyecto a compilar, según:
 
 ```
 	PROJECT = projects/TP1
@@ -106,7 +106,7 @@ Devuelve la configuración del pin que se le pasa como primer parámetro. Se ing
 
 
 ### Chip_GPIO_SetPinState()
-Función de bajo nivel que finalmente setea el valor que se desea. Utiliza los valores de dirección provistos por la funcion gpioOptainPinConfig().
+Función de bajo nivel que finalmente setea el valor que se desea. Utiliza los valores de dirección provistos por la función gpioOptainPinConfig().
 
 ![Chip_GPIO_SetPinState()](https://github.com/mtorcasso/TP1/blob/master/img/Chip_GPIO_SetPinState.PNG)
 
@@ -120,8 +120,8 @@ En la imagen se muestra un ejemplo de como se debe realizar este tipo de compila
 
 ## Switches LEDS
 Se encarga del sensado de 5 pines (4 conectados a los pulsadores incluidos en la EDU-CIAA) y el encendido del LED respectivo a cada uno, o el activado del quinto pin. En principio se inicializa la placa mediante:
-- boardconfig() inicializa el hardware, el conteo de ticks con tickinit() y configura los pines de entrada y salida acorde a la placa de desarrollo.
-- gpioConfig() recibe como parámetros qué pin desea configurar y en qué modo, en base a esto lo setea como input o output, ademas permite activar el pull-up interno entre otras cosas.
+- boardconfig(): inicializa el hardware, el conteo de ticks con tickinit() y configura los pines de entrada y salida acorde a la placa de desarrollo.
+- gpioConfig(): recibe como parámetros qué pin desea configurar y en qué modo, en base a esto lo setea como input o output, además permite activar el pull-up interno entre otras cosas.
 
 ![Switches LEDS](https://github.com/mtorcasso/TP1/blob/master/img/switching_leds.PNG)
 
@@ -163,24 +163,24 @@ Esta función configura mediante un puntero a función del tipo callBackFuncPtr_
 ![tickCallbackSet()](https://github.com/mtorcasso/TP1/blob/master/img/tickCallbackSet.PNG)
 
 ### myTickHook()
-Es la funcion configurada mediante tickCallbackSet() para ejecutarse cuando ocurre la interrupción. Togglea el estado de un bool_t y lo escribe en el pin asociado al LED pasado por argumento, generando el parpadeo del mismo.
+Es la función configurada mediante tickCallbackSet() para ejecutarse cuando ocurre la interrupción. Togglea el estado de un bool_t y lo escribe en el pin asociado al LED pasado por argumento, generando el parpadeo del mismo.
 
 ![myTickHook()](https://github.com/mtorcasso/TP1/blob/master/img/myTickHook.PNG)
 
 ## TickHook Portable
-Con una serie de definiciones se puede configurar el periodo de interrupción de Tick:
+Con una serie de definiciones se puede configurar el período de interrupción de Tick:
 
     #define TICKRATE_1MS (1)            /* 1000 ticks per second */
     #define TICKRATE_10MS   (10)        /* 100 ticks per second */
     #define TICKRATE_100MS  (100)       /* 10 ticks per second */
     #define TICKRATE_MS     (TICKRATE_1MS) /* ¿? ticks per second */
-Luego, con otras definiciones, se define el periodo de parpadeo del LED, normalizado al valor de TICKRATE seleccionado:
+Luego, con otras definiciones, se define el período de parpadeo del LED, normalizado al valor de TICKRATE seleccionado:
 
     #define LED_TOGGLE_100MS	(100)
     #define LED_TOGGLE_500MS	(500)
     #define LED_TOGGLE_1000MS	(1000)
     #define LED_TOGGLE_MS		(LED_TOGGLE_1000MS / TICKRATE_MS)
-Esto permite modificar el tiempo de desborde del timer y la frecuencia de parpadeo independientemente, sólo modificando dos definiciones. Otro cambio importante es en la funcion myTickHook(): en lugar de cambiar el estado del LED en la función, simplemente se setea un flag que determina que hubo una interrupcion de Tick. Luego en el main se realiza el toggle del estado del LED una vez que el contador LED_Toggle_Counter llega a cero (acorde al período fijado por LED_TOOGLE_MS).  Tener en cuenta que mediante una sentencia Switch...Case se realiza la secuencia con todos los LED.
+Esto permite modificar el tiempo de desborde del timer y la frecuencia de parpadeo independientemente, sólo modificando dos definiciones. Otro cambio importante es en la función myTickHook(): en lugar de cambiar el estado del LED en la función, simplemente se setea un flag que determina que hubo una interrupcion de Tick. Luego en el main se realiza el toggle del estado del LED una vez que el contador LED_Toggle_Counter llega a cero (acorde al período fijado por LED_TOOGLE_MS).  Tener en cuenta que mediante una sentencia Switch...Case se realiza la secuencia con todos los LED.
 
 ![TickHook portable](https://github.com/mtorcasso/TP1/blob/master/img/TickHook%20portable.PNG)
 
@@ -196,19 +196,19 @@ Conmuta el estado de un pin según su estado anterior. Se pasan por parámetro l
 
 ## Envío de mensajes de depuración por puerto serie
 
-El código es, en esencia, igual al del punto anterior, con el agregado de las funciones debugPrintConfigUart(), debugPrintString() y el macro DEBUG_PRINT_ENABLE. Este ultimo declara una variable global del tipo print_t que luego apuntara al UART configurado para el debug mediante la función debugPrintConfigUart().
+El código es, en esencia, igual al del punto anterior, con el agregado de las funciones debugPrintConfigUart(), debugPrintString() y la macro DEBUG_PRINT_ENABLE. Este último declara una variable global del tipo print_t que luego apuntará al UART configurado para el debug mediante la función debugPrintConfigUart().
 
 ### debugPrintConfigUart()
-Es un macro que llama a la función printConfigUart(). La misma apunta el puntero mencionado anteriormente (print_t) a la dirección del UART que se configura para debug, en este caso es el conectado al chip FTDI de la placa de desarrollo. Además llama a la funcion uartConfig() que configura el puerto mencionado con un baudrate determinado.
+Es una macro que llama a la función printConfigUart(). La misma apunta el puntero mencionado anteriormente (print_t) a la dirección del UART que se configura para debug, en este caso es el conectado al chip FTDI de la placa de desarrollo. Además llama a la función uartConfig() que configura el puerto mencionado con un baudrate determinado.
 
 ![config_uart](https://github.com/mtorcasso/TP1/blob/master/img/config_uart.png)
 
 ### debugPrintString()
-Es un macro que llama a la funcion printString(), que a su vez llama a la funcion uartWriteString(), que a su vez llama a la función uartWriteByte() para escribir caracter a caracter el string pasado por parámetro, en el UART pasado por parámetro. 
+Es una macro que llama a la función printString(), que a su vez llama a la función uartWriteString(), la cual llama a uartWriteByte() para escribir caracter a caracter el string pasado por parámetro, en el UART seleccionado como primer parámetro. 
 
 ![print_string](https://github.com/mtorcasso/TP1/blob/master/img/print_string.png)
 
-En el main se incorporo este macro cada vez que el LED_Toggle_Counter llega a cero, indicando que hubo una conmutación del estado de un LED, según se observa en la siguiente imagen:
+En el main se incorporó esta macro cada vez que el LED_Toggle_Counter llega a cero, indicando que hubo una conmutación del estado de un LED, según se observa en la siguiente imagen:
 
 ![buclecinco](https://github.com/mtorcasso/TP1/blob/master/img/buclecinco.png)
 
@@ -218,13 +218,13 @@ En la siguiente imagen se muestran los strings recibidos utilizando el software 
 
 ## Sensado de push buttons
 
-De manera analoga a lo realizado previamente, se setea en la función myTickHook() un flag asociado al timer del pulsador, y un flag asociado al estado del pulsador. Ambos flag son del tipo volatile para eliminar las optimizaciones del compilador, dado que son variables que se modifican fuera del flujo normal del programa.
+De manera análoga a lo realizado previamente, se setea en la función myTickHook() un flag asociado al timer del pulsador, y un flag asociado al estado del pulsador. Ambos flags son del tipo volatile para eliminar las optimizaciones del compilador, dado que son variables que se modifican fuera del flujo normal del programa.
 
 ![config_pushbutton](https://github.com/mtorcasso/TP1/blob/master/img/config_pushbutton.png)
 
 
-Al comienzo del main, se observa de forma analoga a los puntos anteriores, la inicializacion de la placa mediante boardConfig(), la configuración del tick mediante tickConfig() y tickCallbackSet(), y la configuración del puerto de debug (UART_USB) mediante debugPrintConfigUart().
+Al comienzo del main, se observa de forma análoga a los puntos anteriores, la inicializacion de la placa mediante boardConfig(), la configuración del tick mediante tickConfig() y tickCallbackSet(), y la configuración del puerto de debug (UART_USB) utilizando debugPrintConfigUart().
 
 ![main_pushbutton](https://github.com/mtorcasso/TP1/blob/master/img/main_pushbutton.png)
 
-En este caso, se usa el contador BUTTON_Status_Counter para determinar el tiempo que estuvo presionado el pulsador. Una vez que se cumple el tiempo determinado por BUTTON_STATUS_MS se realiza la conmutación de los LED, cuya secuencia esta determinada por la linea `((idx > LEDR) ? idx-- : (idx = LED3));`. Esto cumple de cierta manera la funcion de antirebote, dado que se requiere un determinado tiempo del pulsador presionado para realizar la conmutación. Si se mantiene presionado el pulsador, los LED conmutaran con un periodo asociado a la definición BUTTON_STATUS_MS.
+En este caso, se usa el contador BUTTON_Status_Counter para determinar el tiempo que estuvo presionado el pulsador. Una vez que se cumple el tiempo determinado por BUTTON_STATUS_MS se realiza la conmutación de los LED, cuya secuencia está determinada por la línea `((idx > LEDR) ? idx-- : (idx = LED3));`. Esto cumple de cierta manera la función de antirebote, dado que se requiere un determinado tiempo del pulsador presionado para realizar la conmutación. Si se mantiene presionado el pulsador, los LED conmutarán con un período asociado a la definición BUTTON_STATUS_MS.
